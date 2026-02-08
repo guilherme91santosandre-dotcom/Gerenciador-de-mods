@@ -1,0 +1,9 @@
+#!/bin/bash
+# Script rápido para atualizar o Git
+
+# Se passou uma mensagem de commit, usa ela; se não, usa "Atualização rápida"
+COMMIT_MSG="${1:-Atualização rápida}"
+
+git add .
+git commit -m "$COMMIT_MSG"
+git push origin main
