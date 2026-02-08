@@ -41,7 +41,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     del client_id  # Unused by default.
 
     # Adicionando comando /teste
-    if msg.strip().lower() == "/toxic":
+    if msg.strip().lower() == "/Teste":
         babase.screenmessage("⚡ Comando /teste executado!", color=(0, 1, 0))
         return None  # não mostrar no chat
 
