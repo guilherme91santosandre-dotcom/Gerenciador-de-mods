@@ -419,3 +419,4 @@ _babase.reached_end_of_babase()
 # checks to make sure we aren't importing them reciprocally when they
 # import us.
 _REACHED_END_OF_MODULE = True
+# teste de atualização

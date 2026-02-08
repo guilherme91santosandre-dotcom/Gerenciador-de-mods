@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 def launch_main_menu_session() -> None:
     assert babase.app.classic is not None
-
     _bascenev1.new_host_session(babase.app.classic.get_main_menu_session())
 
 
@@ -41,16 +40,20 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     Should filter and return the string to be displayed, or return None
     to ignore the message.
     """
-    del client_id  # Unused by default.
+    if msg.strip().lower() == "/teste":
+        # Mostra a mensagem "Teste" na tela de todos
+        local_chat_message("⚡ Teste executado!")
+        # Retorna None para não mostrar a mensagem padrão no chat
+        return None
+
+    # Se não for /teste, deixa passar a mensagem normalmente
     return msg
 
 
 def local_chat_message(msg: str) -> None:
+    """Mostra uma mensagem local na tela do jogo."""
     classic = babase.app.classic
     assert classic is not None
-    party_window = (
-        None if classic.party_window is None else classic.party_window()
-    )
-
+    party_window = None if classic.party_window is None else classic.party_window()
     if party_window is not None:
         party_window.on_chat_message(msg)
