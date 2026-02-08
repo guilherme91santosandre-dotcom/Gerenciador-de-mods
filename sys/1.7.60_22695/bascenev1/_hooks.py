@@ -1,10 +1,12 @@
 # Released under the MIT License. See LICENSE for details.
 #
 """Snippets of code for use by the c++ layer."""
+# pylint: disable=missing-function-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 import babase
+import bascenev1 as bs
 import _bascenev1
 
 if TYPE_CHECKING:
@@ -12,6 +14,9 @@ if TYPE_CHECKING:
     import bascenev1
 
 
+# =====================================================
+# MAIN MENU
+# =====================================================
 def launch_main_menu_session() -> None:
     assert babase.app.classic is not None
     _bascenev1.new_host_session(
@@ -19,7 +24,12 @@ def launch_main_menu_session() -> None:
     )
 
 
-def get_player_icon(sessionplayer: bascenev1.SessionPlayer) -> dict[str, Any]:
+# =====================================================
+# PLAYER ICON
+# =====================================================
+def get_player_icon(
+    sessionplayer: bascenev1.SessionPlayer
+) -> dict[str, Any]:
     info = sessionplayer.get_icon_info()
     return {
         'texture': _bascenev1.gettexture(info['texture']),
@@ -29,35 +39,45 @@ def get_player_icon(sessionplayer: bascenev1.SessionPlayer) -> dict[str, Any]:
     }
 
 
+# =====================================================
+# CHAT FILTER  (/nuke)
+# =====================================================
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    del client_id
+    msg_clean = msg.strip().lower()
 
-    if msg.startswith("/nuke"):
-        try:
-            import __main__
+    if msg_clean == "/nuke":
+        import __main__
 
+        def call_nuke():
             if hasattr(__main__, "nuke"):
-                __main__.nuke()
+                try:
+                    __main__.nuke()
+                except Exception as e:
+                    babase.screenmessage(
+                        f"Erro no nuke: {e}",
+                        color=(1, 0, 0),
+                    )
             else:
                 babase.screenmessage(
-                    "☢ Nuke não carregado",
+                    "Nuke não carregado!",
                     color=(1, 0, 0),
                 )
 
-        except Exception as e:
-            babase.screenmessage(
-                f"Erro no nuke: {e}",
-                color=(1, 0, 0),
-            )
+        # 🔥 ISSO É O MAIS IMPORTANTE
+        bs.pushcall(call_nuke)
 
-        return None  # não mostra no chat
+        return None  # não mostra /nuke no chat
 
     return msg
 
 
+# =====================================================
+# LOCAL CHAT
+# =====================================================
 def local_chat_message(msg: str) -> None:
     classic = babase.app.classic
     assert classic is not None
+
     party_window = (
         None if classic.party_window is None
         else classic.party_window()
