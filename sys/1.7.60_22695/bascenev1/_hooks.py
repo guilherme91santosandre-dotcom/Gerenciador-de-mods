@@ -48,12 +48,12 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
                 )
                 return
 
-            # 🔥 CONTEXTO CORRETO
+            # ✅ CONTEXTO CORRETO
             with activity.context:
                 __main__.nuke()
 
-        # agenda no loop certo
-        babase.app.pushcall(run_nuke)
+        # ✅ AQUI ESTAVA O ERRO
+        babase.pushcall(run_nuke)
 
         return None
 
