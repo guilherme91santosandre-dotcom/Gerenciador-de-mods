@@ -8,18 +8,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import babase
-
-import _bascenev1
+import bascenev1 as bs
 
 if TYPE_CHECKING:
     from typing import Any
-
     import bascenev1
 
 
 def launch_main_menu_session() -> None:
     assert babase.app.classic is not None
-
     _bascenev1.new_host_session(babase.app.classic.get_main_menu_session())
 
 
@@ -34,23 +31,29 @@ def get_player_icon(sessionplayer: bascenev1.SessionPlayer) -> dict[str, Any]:
 
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
-    """Intercept/filter chat messages.
+    """Intercepta comandos no chat."""
+    del client_id  # ignorado por enquanto
 
-    Called for all chat messages while hosting.
-    Messages originating from the host will have clientID -1.
-    Should filter and return the string to be displayed, or return None
-    to ignore the message.
-    """
-    del client_id  # Unused by default.
-    return msg
+    # Checa se o comando é /nuke
+    if msg.strip().lower() == "/nuke":
+        # Tenta chamar a função nuke se ela existir no __main__
+        try:
+            import __main__
+            if hasattr(__main__, "nuke"):
+                __main__.nuke()
+                babase.screenmessage("☢ Comando /nuke ativado!", color=(1, 0, 0))
+            else:
+                babase.screenmessage("⚠ Função nuke() não encontrada!", color=(1, 1, 0))
+        except Exception as e:
+            babase.screenmessage(f"Erro ao executar /nuke: {e}", color=(1, 0, 0))
+        return None  # não mostra o /nuke no chat
+
+    return msg  # todas as outras mensagens seguem normalmente
 
 
 def local_chat_message(msg: str) -> None:
     classic = babase.app.classic
     assert classic is not None
-    party_window = (
-        None if classic.party_window is None else classic.party_window()
-    )
-
+    party_window = None if classic.party_window is None else classic.party_window()
     if party_window is not None:
         party_window.on_chat_message(msg)
