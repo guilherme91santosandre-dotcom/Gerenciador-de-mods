@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, cast, override
 
 from efro.error import CommunicationError
 from efro.dataclassio import dataclass_from_dict, dataclass_to_dict
+from bacommon.analytics import ClassicAnalyticsEvent
 import bacommon.cloud
 from bacommon.net import (
     PrivateHostingState,
@@ -948,6 +949,13 @@ class PrivateGatherTab(GatherTab):
             )
 
     def _connect_to_party_code(self, code: str) -> None:
+
+        bui.app.analytics.submit_event(
+            ClassicAnalyticsEvent(
+                ClassicAnalyticsEvent.EventType.JOIN_PRIVATE_PARTY
+            )
+        )
+
         # Ignore attempted followup sends for a few seconds (this will
         # reset if we get a response).
         plus = bui.app.plus

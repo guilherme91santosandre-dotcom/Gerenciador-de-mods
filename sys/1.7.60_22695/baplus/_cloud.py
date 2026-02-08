@@ -322,6 +322,16 @@ class CloudSubsystem(babase.AppSubsystem):
         ],
     ) -> None: ...
 
+    @overload
+    def send_message_cb(
+        self,
+        msg: bacommon.cloud.AnalyticsEventMessage,
+        on_response: Callable[
+            [None | Exception],
+            None,
+        ],
+    ) -> None: ...
+
     def send_message_cb(
         self,
         msg: Message,
