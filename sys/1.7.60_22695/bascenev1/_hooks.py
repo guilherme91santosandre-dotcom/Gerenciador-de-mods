@@ -5,174 +5,52 @@
 # pylint: disable=missing-function-docstring
 from __future__ import annotations
 
-import logging
-import inspect
 from typing import TYPE_CHECKING
 
-import _bauiv1
+import babase
+
+import _bascenev1
 
 if TYPE_CHECKING:
-    from typing import Sequence
+    from typing import Any
 
-    import babase
-    import bauiv1
+    import bascenev1
 
 
-def empty_call() -> None:
-    pass
+def launch_main_menu_session() -> None:
+    assert babase.app.classic is not None
 
+    _bascenev1.new_host_session(babase.app.classic.get_main_menu_session())
 
-def _root_ui_button_press(
-    rootuitype: bauiv1.UIV1AppSubsystem.RootUIElement,
-) -> None:
-    import babase
 
-    ui = babase.app.ui_v1
-    call = ui.root_ui_calls.get(rootuitype)
-    if call is not None:
-        call()
+def get_player_icon(sessionplayer: bascenev1.SessionPlayer) -> dict[str, Any]:
+    info = sessionplayer.get_icon_info()
+    return {
+        'texture': _bascenev1.gettexture(info['texture']),
+        'tint_texture': _bascenev1.gettexture(info['tint_texture']),
+        'tint_color': info['tint_color'],
+        'tint2_color': info['tint2_color'],
+    }
 
 
-def root_ui_account_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
+def filter_chat_message(msg: str, client_id: int) -> str | None:
+    """Intercept/filter chat messages.
 
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.ACCOUNT_BUTTON)
+    Called for all chat messages while hosting.
+    Messages originating from the host will have clientID -1.
+    Should filter and return the string to be displayed, or return None
+    to ignore the message.
+    """
+    del client_id  # Unused by default.
+    return msg
 
 
-def root_ui_inbox_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.INBOX_BUTTON)
-
-
-def root_ui_settings_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.SETTINGS_BUTTON)
-
-
-def root_ui_achievements_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.ACHIEVEMENTS_BUTTON)
-
-
-def root_ui_store_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.STORE_BUTTON)
-
-
-def root_ui_chest_slot_0_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.CHEST_SLOT_0)
-
-
-def root_ui_chest_slot_1_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.CHEST_SLOT_1)
-
-
-def root_ui_chest_slot_2_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.CHEST_SLOT_2)
-
-
-def root_ui_chest_slot_3_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.CHEST_SLOT_3)
-
-
-def root_ui_inventory_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.INVENTORY_BUTTON)
-
-
-def root_ui_ticket_icon_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.TICKETS_METER)
-
-
-def root_ui_get_tokens_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.GET_TOKENS_BUTTON)
-
-
-def root_ui_tokens_meter_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.TOKENS_METER)
-
-
-def root_ui_trophy_meter_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.TROPHY_METER)
-
-
-def root_ui_level_icon_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.LEVEL_METER)
-
-
-def root_ui_menu_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.MENU_BUTTON)
-
-
-def root_ui_back_button_press() -> None:
-    # Native layer handles this directly. (technically we could wire
-    # this up to not even come through Python).
-    _bauiv1.root_ui_back_press()
-
-
-def root_ui_squad_button_press() -> None:
-    from bauiv1._appsubsystem import UIV1AppSubsystem
-
-    _root_ui_button_press(UIV1AppSubsystem.RootUIElement.SQUAD_BUTTON)
-
-
-def quit_window(quit_type: babase.QuitType) -> None:
-    from babase import app
-
-    if app.classic is None:
-        logging.exception('Classic not present.')
-        return
-
-    app.classic.quit_window(quit_type)
-
-
-def show_url_window(address: str) -> None:
-    from babase import app
-
-    if app.classic is None:
-        logging.exception('Classic not present.')
-        return
-
-    app.classic.show_url_window(address)
-
-
-def double_transition_out_warning() -> None:
-    """Called if a widget is set to transition out twice."""
-    caller_frame = inspect.stack()[1]
-    caller_filename = caller_frame.filename
-    caller_line_number = caller_frame.lineno
-    logging.warning(
-        'ContainerWidget was set to transition out twice;'
-        ' this often implies buggy code (%s line %s).\n'
-        ' Generally you should check the value of'
-        ' _root_widget.transitioning_out and perform no actions if that'
-        ' is True.',
-        caller_filename,
-        caller_line_number,
+def local_chat_message(msg: str) -> None:
+    classic = babase.app.classic
+    assert classic is not None
+    party_window = (
+        None if classic.party_window is None else classic.party_window()
     )
 
+    if party_window is not None:
+        party_window.on_chat_message(msg)
